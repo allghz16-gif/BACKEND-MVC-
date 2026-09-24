@@ -1,9 +1,20 @@
 import pool from '../config/db.js';
 
 export const TodoModel = {
-  getByUserId: async (userId: number) => {
-    const [rows] = await pool.query('SELECT * FROM todos WHERE user_id = ?', [userId]);
+  getByUserId: async (userId: number, limit: number, offset: number) => {
+    const [rows] = await pool.query(
+      'SELECT * FROM todos WHERE user_id = ? ORDER BY id DESC LIMIT ? OFFSET ?',
+      [userId, limit, offset]
+    );
     return rows;
+  },
+
+  countByUserId: async (userId: number) => {
+    const [rows]: any = await pool.query(
+      'SELECT COUNT(*) AS total FROM todos WHERE user_id = ?',
+      [userId]
+    );
+    return rows[0].total as number;
   },
 
   create: async (userId: number, task: string) => {
@@ -30,7 +41,6 @@ export const TodoModel = {
     return result.affectedRows;
   },
 
-  // Langkah 10a: getById sudah terpasang
   getById: async (id: number, userId: number) => {
     const [rows]: any = await pool.query(
       'SELECT * FROM todos WHERE id = ? AND user_id = ?',
